@@ -8,8 +8,8 @@ bl_info = {
     "location": "",
     "description": "automatically marking beats with BPM",
     "warning": "",
-    "support": "TESTING",
-    "wiki_url": "",
+    "support": "COMMUNITY",
+    "wiki_url": "https://github.com/Aodaruma/BPMmark_maker",
     "tracker_url": "",
     "category": "Animation"
 }

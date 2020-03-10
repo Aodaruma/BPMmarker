@@ -1,5 +1,5 @@
 # BPMmarker
- the addon adding a marker to Blender's timeline.
+ the Blender addon adding mark beats to timeline with BPM automatically
 
 ## how to install & use
 
