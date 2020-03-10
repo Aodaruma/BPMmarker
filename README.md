@@ -1,6 +1,8 @@
 # BPMmarker
  the Blender addon adding mark beats to timeline with BPM automatically
 
+![example](https://raw.githubusercontent.com/Aodaruma/BPMmarker/master/example.png)
+
 ## how to install & use
 
 1. download `BPMmarker.py`
