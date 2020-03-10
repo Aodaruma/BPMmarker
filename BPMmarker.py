@@ -23,20 +23,20 @@ class UI(bpy.types.Panel):
     bl_region_type = "TOOLS" if bpy.app.version < (2,80,0) else "UI"
     bl_category = "Tools"
     def draw(self, context):
-        self.layout.operator("my.mark", text="Mark")
+        self.layout.operator("bpmmarker", text="Mark")
 
 # ------------------------------------------------ #
 
 class MarkingButton(bpy.types.Operator):
-    bl_idname = "my.mark"
+    bl_idname = "bpmmarker"
     bl_label = "tetete"
   
 #   def execute(self, context):
 #     print("pushed")
 #     return {'FINISHED'}
     BPM = bpy.props.IntProperty(name="BPM",default=120)
-    beat = bpy.props.IntProperty(name="Beat",default=4)
-    isClearPreMark = bpy.props.BoolProperty(name="clear previous mark",default=True)
+    beat = bpy.props.IntProperty(name="Beats",default=4)
+    isClearPreMark = bpy.props.BoolProperty(name="clear previous marks",default=True)
     
     def execute(self, context):
         scene = bpy.context.scene
@@ -76,10 +76,10 @@ for cls in classes:
 ####################################
 
 def register():
-    print(bl_info["name"]+" ON")
+    print(bl_info["name"]+" registered.")
 
 def unregister():
-    print(bl_info["name"]+" OFF")
+    print(bl_info["name"]+" unregistered.")
 
 if __name__ == "__main__":
     register()
