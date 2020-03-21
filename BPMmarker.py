@@ -28,8 +28,8 @@ class UI(bpy.types.Panel):
 # ------------------------------------------------ #
 
 class MarkingButton(bpy.types.Operator):
-    bl_idname = "bpmmarker"
-    bl_label = "tetete"
+    bl_idname = "aodaruma.bpmmarker"
+    bl_label = "bpmmarker"
   
 #   def execute(self, context):
 #     print("pushed")
