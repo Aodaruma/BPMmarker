@@ -23,13 +23,13 @@ class UI(bpy.types.Panel):
     bl_region_type = "TOOLS" if bpy.app.version < (2,80,0) else "UI"
     bl_category = "Tools"
     def draw(self, context):
-        self.layout.operator("bpmmarker", text="Mark")
+        self.layout.operator("aodaruma.bpmmarker", text="Mark")
 
 # ------------------------------------------------ #
 
 class MarkingButton(bpy.types.Operator):
     bl_idname = "aodaruma.bpmmarker"
-    bl_label = "bpmmarker"
+    bl_label = "BPM marker"
   
 #   def execute(self, context):
 #     print("pushed")
