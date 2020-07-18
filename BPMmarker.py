@@ -55,17 +55,18 @@ class MarkingButton(bpy.types.Operator):
             scene.timeline_markers.clear()
 
         fpb = 60 * fps / bpm
+        print(fps, bpm)
         print("frames per beat", fpb)
         # frame = scene.frame_start
-        frame = start
+        frame = 0
         while frame < scene.frame_end:
             counter = round(frame / fpb % beat) + 1
             if VERSION < (2, 80, 0):
                 scene.timeline_markers.new("{m}{c}{m}".format(
-                    c=counter, m="|" if counter == 1 else ""), frame)
+                    c=counter, m="|" if counter == 1 else ""), frame+start)
             else:
                 scene.timeline_markers.new("{m}{c}{m}".format(
-                    c=counter, m="|" if counter == 1 else ""), frame=frame)
+                    c=counter, m="|" if counter == 1 else ""), frame=frame+start)
             frame += fpb
 
         return{'FINISHED'}
