@@ -1,10 +1,13 @@
+import re
+from math import ceil, floor
+from typing import List
 import bpy
 
 bl_info = {
     "name": "animation: BPM marker",
     "author": "Aodaruma",
-    "version": (1, 1),
-    "blender": (2, 80, 0),
+    "version": (2, 0),
+    "blender": (3, 0, 0),
     "location": "",
     "description": "automatically marking beats with BPM",
     "warning": "",
@@ -18,55 +21,73 @@ bl_info = {
 VERSION = bpy.app.version
 
 
-class UI(bpy.types.Panel):
+class BPMmarker_DopesheetPanel(bpy.types.Panel):
     bl_label = "BPM marker"
-    bl_space_type = "VIEW_3D"
+    bl_space_type = "DOPESHEET_EDITOR"
     bl_region_type = "TOOLS" if bpy.app.version < (2, 80, 0) else "UI"
-    bl_category = "Tools"
+    bl_category = "BPM marker"
 
     def draw(self, context):
-        self.layout.operator("aodaruma.bpmmarker", text="Mark")
+        self.layout.operator("aodaruma.bpmmarker", text="Run to Mark")
+
+
+class BPMmarker_GrapheditorPanel(bpy.types.Panel):
+    bl_label = "BPM marker"
+    bl_space_type = "GRAPH_EDITOR"
+    bl_region_type = "TOOLS" if bpy.app.version < (2, 80, 0) else "UI"
+    bl_category = "BPM marker"
+
+    def draw(self, context):
+        self.layout.operator("aodaruma.bpmmarker", text="Run to Mark")
 
 # ------------------------------------------------ #
 
 
-class MarkingButton(bpy.types.Operator):
+class AODARUMA_OT_BPMmaker(bpy.types.Operator):
     bl_idname = "aodaruma.bpmmarker"
     bl_label = "BPM marker"
+    bl_description = "automatically marking beats with BPM"
+    bl_options = {'REGISTER', 'UNDO'}
 
 #   def execute(self, context):
 #     print("pushed")
 #     return {'FINISHED'}
-    BPM = bpy.props.IntProperty(name="BPM", default=120, min=1)
-    beat = bpy.props.IntProperty(name="Beats", default=4, min=1, max=256)
-    start = bpy.props.IntProperty(name="BeginFrame", default=0)
-    isClearPreMark = bpy.props.BoolProperty(
+    BPM: bpy.props.IntProperty(name="BPM", default=120, min=1)
+    beat: bpy.props.IntProperty(name="Beats", default=4, min=1, max=256)
+    start: bpy.props.IntProperty(name="BeginFrame", default=0)
+    end: bpy.props.IntProperty(
+        name="EndFrame", default=250)
+    isClearPreMark: bpy.props.BoolProperty(
         name="clear previous marks", default=True)
 
-    def execute(self, context):
-        scene = bpy.context.scene
+    def execute(self, context: bpy.types.Context):
+        scene = context.scene
 
         bpm = self.BPM
         beat = self.beat
         start = self.start
+        end = self.end
         fps = scene.render.fps
+        tms = scene.timeline_markers
 
         if self.isClearPreMark:
-            scene.timeline_markers.clear()
+            for m in tms:
+                if re.match(r"\|?[\d]\|?", m.name):
+                    tms.remove(m)
 
         fpb = 60 * fps / bpm
         # print(fps, bpm)
         print("frames per beat", fpb)
         # frame = scene.frame_start
         frame = 0
-        while frame < scene.frame_end-start:
-            counter = round(frame / fpb % beat) + 1
+        while frame < end-start:
+            counter = floor((frame / fpb) % beat)
             if VERSION < (2, 80, 0):
-                scene.timeline_markers.new("{m}{c}{m}".format(
-                    c=counter, m="|" if counter == 1 else ""), frame+start)
+                tms.new("{m}{c}{m}".format(
+                    c=counter+1, m="|" if counter == 0 else ""), frame+start)
             else:
-                scene.timeline_markers.new("{m}{c}{m}".format(
-                    c=counter, m="|" if counter == 1 else ""), frame=frame+start)
+                tms.new("{m}{c}{m}".format(
+                    c=counter+1, m="|" if counter == 0 else ""), frame=frame+start)
             frame += fpb
 
         return{'FINISHED'}
@@ -75,22 +96,26 @@ class MarkingButton(bpy.types.Operator):
         return context.window_manager.invoke_props_dialog(self)
 
 
-classes = (
-    UI,
-    MarkingButton
-)
-
-for cls in classes:
-    bpy.utils.register_class(cls)
+classes = [
+    AODARUMA_OT_BPMmaker,
+    BPMmarker_DopesheetPanel,
+    BPMmarker_GrapheditorPanel
+]
 
 ####################################
 
 
 def register():
+    for c in classes:
+        bpy.utils.register_class(c)
+    # bpy.types.VIEW3D_MT_object.append(UI)
     print(bl_info["name"]+" registered.")
 
 
 def unregister():
+    # bpy.types.VIEW3D_MT_object.remove(UI)
+    for c in classes:
+        bpy.utils.unregister_class(c)
     print(bl_info["name"]+" unregistered.")
 
 
