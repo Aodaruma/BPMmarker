@@ -5,6 +5,8 @@ name = "pypi"
 
 [packages]
 "fake-bpy-module-3.0" = "*"
+numpy = "*"
+librosa = "*"
 
 [dev-packages]
 
