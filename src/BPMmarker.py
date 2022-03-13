@@ -1,6 +1,6 @@
 import re
 from math import ceil, floor
-from typing import List
+from typing import List, Tuple
 import bpy
 
 bl_info = {
@@ -18,7 +18,7 @@ bl_info = {
 }
 ####################################
 
-VERSION = bpy.app.version
+VERSION: Tuple[int, int, int] = bpy.app.version
 
 
 class BPMmarker_DopesheetPanel(bpy.types.Panel):
