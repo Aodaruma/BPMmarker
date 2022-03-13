@@ -52,8 +52,8 @@ bl_info = {
     "blender": (3, 0, 0),
     "location": "",
     "description": "automatically detecting BPM and marking beats with BPM",
-    "warning": "",
-    "support": "COMMUNITY",
+    "warning": "This is an alpha add-on! We will not be liable for any damages whatsoever resulting from the use of this add-on.",
+    "support": "TESTING",
     "wiki_url": "https://github.com/Aodaruma/BPMmark_maker",
     "tracker_url": "",
     "category": "Animation"
