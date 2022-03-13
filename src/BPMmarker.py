@@ -48,7 +48,7 @@ except ImportError:
 bl_info = {
     "name": "animation: BPM marker",
     "author": "Aodaruma",
-    "version": (2, 0),
+    "version": (3, 0),
     "blender": (3, 0, 0),
     "location": "",
     "description": "automatically detecting BPM and marking beats with BPM",
