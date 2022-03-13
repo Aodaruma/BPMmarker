@@ -21,7 +21,7 @@ bl_info = {
 VERSION: Tuple[int, int, int] = bpy.app.version
 
 
-class BPMmarker_DopesheetPanel(bpy.types.Panel):
+class AODARUMA_PT_BPMmarker_DopesheetPanel(bpy.types.Panel):
     bl_label = "BPM marker"
     bl_space_type = "DOPESHEET_EDITOR"
     bl_region_type = "TOOLS" if VERSION < (2, 80, 0) else "UI"
@@ -31,7 +31,8 @@ class BPMmarker_DopesheetPanel(bpy.types.Panel):
         self.layout.operator("aodaruma.bpmmarker", text="Run to Mark")
 
 
-class BPMmarker_GrapheditorPanel(bpy.types.Panel):
+
+class AODARUMA_PT_BPMmarker_GrapheditorPanel(bpy.types.Panel):
     bl_label = "BPM marker"
     bl_space_type = "GRAPH_EDITOR"
     bl_region_type = "TOOLS" if VERSION < (2, 80, 0) else "UI"
