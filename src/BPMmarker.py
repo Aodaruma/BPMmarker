@@ -68,13 +68,20 @@ class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
 #   def execute(self, context):
 #     print("pushed")
 #     return {'FINISHED'}
-    BPM: bpy.props.IntProperty(name="BPM", default=120, min=1)
-    beat: bpy.props.IntProperty(name="Beats", default=4, min=1, max=256)
-    start: bpy.props.IntProperty(name="BeginFrame", default=0)
+    BPM: bpy.props.FloatProperty(
+        name="BPM", default=120, min=1, description="BPM")
+    beat: bpy.props.IntProperty(
+        name="Beats", default=4, min=1, max=256, description="The number of beats")
+    start: bpy.props.IntProperty(
+        name="Start Frame", default=0, description="Start frame that markers will be added")
     end: bpy.props.IntProperty(
-        name="EndFrame", default=250)
+        name="End Frame", default=250, description="End frame that markers will be added")
+    isStandardSameAsBegin: bpy.props.BoolProperty(
+        name="set standard frame to same as begin", default=True, description="The reference frame for counting BPM beats is the same as the start frame.")
+    standard: bpy.props.IntProperty(
+        name="Standard Frame", default=0, description="The reference frame for counting BPM beats")
     isClearPreMark: bpy.props.BoolProperty(
-        name="clear previous marks", default=True)
+        name="clear previous marks", default=True, description="Clear previous BPM markers")
 
     def execute(self, context: bpy.types.Context):
         scene = context.scene
