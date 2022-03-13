@@ -202,7 +202,7 @@ class AODARUMA_OT_BPMmarkerAutomatically(bpy.types.Operator):
     hop_length: bpy.props.IntProperty(
         name="Hop Length", default=512, min=1, description="number of audio samples between successive onset_envelope values (librosa)\nIf you feel the marker's position shifts incorrectly, increase this value such as 1024 (power of 2)")
     tightness: bpy.props.FloatProperty(
-        name="Tightness", default=100, description="tightness of beat distribution around tempo (librosa)")
+        name="Tightness", default=100, description="tightness of beat distribution around tempo (librosa)\nIf you feel the marker's position shifts incorrectly, increase this value.")
     isClearPreMark: bpy.props.BoolProperty(
         name="clear previous marks", default=True, description="whether to clear previous BPM markers")
 
