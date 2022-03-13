@@ -102,9 +102,13 @@ class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
         # print(fps, bpm)
         print("frames per beat", fpb)
         # frame = scene.frame_start
-        frame = 0
-        while frame < end-start:
-            counter = floor((frame / fpb) % beat)
+        frame = start
+        if self.isStandardSameAsBegin:
+            now_beat = 0
+        else:
+            now_beat = floor((start - standard) / fpb)
+        while frame <= end:
+            counter = now_beat % beat
             if VERSION < (2, 80, 0):
                 tms.new("{m}{c}{m}".format(
                     c=counter+1, m="|" if counter == 0 else ""), frame+start)
@@ -112,6 +116,7 @@ class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
                 tms.new("{m}{c}{m}".format(
                     c=counter+1, m="|" if counter == 0 else ""), frame=frame+start)
             frame += fpb
+            now_beat += 1
 
         return{'FINISHED'}
 
