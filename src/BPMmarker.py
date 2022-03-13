@@ -123,6 +123,19 @@ class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
     def invoke(self, context, event):
         return context.window_manager.invoke_props_dialog(self)
 
+    def draw(self, context):
+        layout = self.layout
+        layout.prop(self, "BPM")
+        layout.prop(self, "beat")
+        col = layout.column()
+        row1 = col.row()
+        row1.prop(self, "start")
+        row1.prop(self, "end")
+        col.prop(self, "isStandardSameAsBegin")
+        row2 = col.row()
+        row2.prop(self, "standard")
+        row2.enabled = not self.isStandardSameAsBegin
+        layout.prop(self, "isClearPreMark")
 
 classes = [
     AODARUMA_OT_BPMmaker,
