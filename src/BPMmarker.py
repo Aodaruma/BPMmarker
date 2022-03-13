@@ -43,6 +43,19 @@ class AODARUMA_PT_BPMmarker_GrapheditorPanel(bpy.types.Panel):
         self.layout.operator("aodaruma.bpmmarker_manually",
                              text="Mark manually")
 
+
+class AODARUMA_PT_BPMmarker_SequencerPanel(bpy.types.Panel):
+    bl_label = "BPM marker"
+    bl_space_type = "SEQUENCE_EDITOR"
+    bl_region_type = "TOOLS" if VERSION < (2, 80, 0) else "UI"
+    bl_category = "BPM marker"
+
+    def draw(self, context):
+        self.layout.operator("aodaruma.bpmmarker_manually",
+                             text="Mark manually")
+        self.layout.operator("aodaruma.bpmmarker_automatically",
+                             text="Auto BPM detect and Add marker")
+
 # ------------------------------------------------ #
 
 
