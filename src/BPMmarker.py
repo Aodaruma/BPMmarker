@@ -28,8 +28,9 @@ class AODARUMA_PT_BPMmarker_DopesheetPanel(bpy.types.Panel):
     bl_category = "BPM marker"
 
     def draw(self, context):
-        self.layout.operator("aodaruma.bpmmarker", text="Run to Mark")
 
+        self.layout.operator("aodaruma.bpmmarker_manually",
+                             text="Mark manually")
 
 
 class AODARUMA_PT_BPMmarker_GrapheditorPanel(bpy.types.Panel):
@@ -39,13 +40,14 @@ class AODARUMA_PT_BPMmarker_GrapheditorPanel(bpy.types.Panel):
     bl_category = "BPM marker"
 
     def draw(self, context):
-        self.layout.operator("aodaruma.bpmmarker", text="Run to Mark")
+        self.layout.operator("aodaruma.bpmmarker_manually",
+                             text="Mark manually")
 
 # ------------------------------------------------ #
 
 
-class AODARUMA_OT_BPMmaker(bpy.types.Operator):
-    bl_idname = "aodaruma.bpmmarker"
+class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
+    bl_idname = "aodaruma.bpmmarker_manually"
     bl_label = "BPM marker"
     bl_description = "automatically marking beats with BPM"
     bl_options = {'REGISTER', 'UNDO'}
