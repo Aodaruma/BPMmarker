@@ -3,6 +3,48 @@ from math import ceil, floor
 from typing import List, Tuple
 import bpy
 
+# check if python is installed librosa
+try:
+    import librosa
+except ImportError:
+    print("BPMmarker: librosa is not installed. try to install librosa with pip...")
+    try:
+        import sys
+        import os
+        import subprocess
+        from subprocess import PIPE
+        from pathlib import Path
+
+        # specify the path of python binary of blender
+        python_bin_dir = Path(sys.exec_prefix) / "bin"
+        os_type = sys.platform
+        python_bin = None
+        for p in python_bin_dir.iterdir():
+            if "python" in p.name:
+                python_bin = p
+                break
+        if python_bin is None:
+            raise Exception("Could not find python executable")
+
+        # try to install librosa using pip from subprocess (maybe some unexpected error occurs, idk)
+        proc = subprocess.run(
+            [python_bin, "-m", "pip", "install", "librosa"], stdout=PIPE, stderr=PIPE, text=True)
+        print("-"*10, "\n", proc.stdout, "\n", "-"*10)
+        print("BPMmarker: librosa is installed.")
+        try:
+            import librosa
+            print(
+                "BPMmarker: Finally you can use librosa and all features of BPMmarker. Yay!")
+        except ImportError:
+            print(
+                "BPMmarker: librosa was installed but maybe blender needs to restart. Try it!")
+            librosa = None
+
+    except Exception as e:  # when error occurs, print the error message
+        print("BPMmarker: Could not install librosa. Please install librosa manually.")
+        print(e)
+        librosa = None
+
 bl_info = {
     "name": "animation: BPM marker",
     "author": "Aodaruma",
