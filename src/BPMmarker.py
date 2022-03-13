@@ -138,9 +138,10 @@ class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
         layout.prop(self, "isClearPreMark")
 
 classes = [
-    AODARUMA_OT_BPMmaker,
-    BPMmarker_DopesheetPanel,
-    BPMmarker_GrapheditorPanel
+    AODARUMA_OT_BPMmarkerManually,
+    AODARUMA_PT_BPMmarker_DopesheetPanel,
+    AODARUMA_PT_BPMmarker_GrapheditorPanel,
+    AODARUMA_PT_BPMmarker_SequencerPanel
 ]
 
 ####################################
