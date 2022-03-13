@@ -51,7 +51,7 @@ bl_info = {
     "version": (2, 0),
     "blender": (3, 0, 0),
     "location": "",
-    "description": "automatically marking beats with BPM",
+    "description": "automatically detecting BPM and marking beats with BPM",
     "warning": "",
     "support": "COMMUNITY",
     "wiki_url": "https://github.com/Aodaruma/BPMmark_maker",
@@ -180,8 +180,141 @@ class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
         row2.enabled = not self.isStandardSameAsBegin
         layout.prop(self, "isClearPreMark")
 
+
+class AODARUMA_OT_BPMmarkerAutomatically(bpy.types.Operator):
+    bl_idname = "aodaruma.bpmmarker_automatically"
+    bl_label = "BPM detector & marker"
+    bl_description = "automatically detecting BPM using librosa and marking beats with BPM"
+    bl_options = {'REGISTER', 'UNDO'}
+
+#   def execute(self, context):
+#     print("pushed")
+#     return {'FINISHED'}
+    beat: bpy.props.IntProperty(
+        name="Beats", default=4, min=1, max=256, description="beats per measure")
+    start: bpy.props.IntProperty(
+        name="Start Frame", default=0, description="start frame of duration that marker will be added")
+    end: bpy.props.IntProperty(
+        name="End Frame", default=250, description="end frame of duration that marker will be added")
+    # standard: bpy.props.IntProperty(name="Standard Frame", default=0)
+    beat_shift: bpy.props.IntProperty(
+        name="Beat Shift", default=0, min=-256, max=256, description="how many beats to shift")
+    hop_length: bpy.props.IntProperty(
+        name="Hop Length", default=512, min=1, description="number of audio samples between successive onset_envelope values (librosa)\nIf you feel the marker's position shifts incorrectly, increase this value such as 1024 (power of 2)")
+    tightness: bpy.props.FloatProperty(
+        name="Tightness", default=100, description="tightness of beat distribution around tempo (librosa)")
+    isClearPreMark: bpy.props.BoolProperty(
+        name="clear previous marks", default=True, description="whether to clear previous BPM markers")
+
+    def execute(self, context: bpy.types.Context):
+        if librosa is None:
+            self.report(
+                {"ERROR"}, 'librosa is not installed. please install librosa with pip (generally installed when blender installs this addon) and restart blender')
+            return {'CANCELLED'}
+
+        scene = context.scene
+        beat = self.beat
+        start = self.start
+        end = self.end
+        # standard = self.standard
+        beat_shift = self.beat_shift
+        hop_length = self.hop_length
+        tightness = self.tightness
+        fps = scene.render.fps
+        tms = scene.timeline_markers
+
+        selected_sequence = context.scene.sequence_editor.active_strip
+
+        if selected_sequence is None:
+            self.report({"ERROR"}, "No sequence selected")
+            return {'ERROR'}
+        if not isinstance(selected_sequence, bpy.types.SoundSequence):
+            self.report({"ERROR"}, "Selected sequence is not a sound sequence")
+            return {'ERROR'}
+
+        sequence_start = selected_sequence.frame_start
+        sequence_end = selected_sequence.frame_final_end
+
+        if self.isClearPreMark:
+            for m in tms:
+                if re.match(r"\|?[\d]\|?", m.name):
+                    tms.remove(m)
+
+        # BPM detect using librosa
+        wm = context.window_manager
+        wm.progress_begin(0, 100)
+        wm.progress_update(0)
+
+        print("Analyzing...")
+        y, sr = librosa.load(selected_sequence.sound.filepath, sr=None)
+        tempo, beat_times = librosa.beat.beat_track(
+            y=y, sr=sr, hop_length=hop_length, tightness=tightness, units="time")
+        wm.progress_update(50)
+        print("Analyzed the audio!;", "BPM:", tempo, ";")
+
+        # Marking beats
+        # fpb = 60 * fps / tempo
+        # deltaframe = (standard-sequence_start) % fpb
+        # frame = sequence_start+deltaframe
+        # while frame <= sequence_end and frame <= end:
+        #     counter = floor((frame - standard - deltaframe) / fpb) % beat
+        #     if VERSION < (2, 80, 0):
+        #         tms.new("{m}{c}{m}".format(
+        #             c=counter+1, m="|" if counter == 0 else ""), frame)
+        #     else:
+        #         tms.new("{m}{c}{m}".format(
+        #             c=counter+1, m="|" if counter == 0 else ""), frame=frame)
+        #     frame += fpb
+
+        # Marking beats with beat_frames
+        beat_frames = map(lambda x: int(x*fps), beat_times)
+        now_beats = beat_shift
+        for frame in beat_frames:
+            counter = now_beats % beat
+            if (frame >= sequence_start and frame >= start) and (frame <= sequence_end and frame <= end):
+                if VERSION < (2, 80, 0):
+                    tms.new("{m}{c}{m}".format(
+                        c=counter+1, m="|" if counter == 0 else ""), frame+sequence_start)
+                else:
+                    tms.new("{m}{c}{m}".format(
+                        c=counter+1, m="|" if counter == 0 else ""), frame=frame+sequence_start)
+            now_beats += 1
+            wm.progress_update(
+                50+int(50*(frame-sequence_start)/(sequence_end-sequence_start)))
+
+        wm.progress_end()
+        self.report({'INFO'}, f'Analyzed and Added markers! BPM: {tempo}')
+
+        return{'FINISHED'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+    def draw(self, context):
+        layout = self.layout
+
+        # Required options
+        layout.prop(self, "beat")
+        row = layout.row()
+        row.prop(self, "start")
+        row.prop(self, "end")
+        layout.prop(self, "standard")
+        layout.prop(self, "beat_shift")
+
+        # Advanced options
+        box = layout.box()
+        box.label(text="Advanced Options")
+        box.prop(self, "hop_length")
+        box.prop(self, "tightness")
+
+        layout.prop(self, "isClearPreMark")
+        layout.label(
+            text="WARNING: analyzing audio will take some time!", icon='ERROR')
+
+
 classes = [
     AODARUMA_OT_BPMmarkerManually,
+    AODARUMA_OT_BPMmarkerAutomatically,
     AODARUMA_PT_BPMmarker_DopesheetPanel,
     AODARUMA_PT_BPMmarker_GrapheditorPanel,
     AODARUMA_PT_BPMmarker_SequencerPanel
