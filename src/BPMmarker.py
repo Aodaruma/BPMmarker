@@ -3,48 +3,6 @@ from math import ceil, floor
 from typing import List, Tuple
 import bpy
 
-# check if python is installed librosa
-try:
-    import librosa
-except ImportError:
-    print("BPMmarker: librosa is not installed. try to install librosa with pip...")
-    try:
-        import sys
-        import os
-        import subprocess
-        from subprocess import PIPE
-        from pathlib import Path
-
-        # specify the path of python binary of blender
-        python_bin_dir = Path(sys.exec_prefix) / "bin"
-        os_type = sys.platform
-        python_bin = None
-        for p in python_bin_dir.iterdir():
-            if "python" in p.name:
-                python_bin = p
-                break
-        if python_bin is None:
-            raise Exception("Could not find python executable")
-
-        # try to install librosa using pip from subprocess (maybe some unexpected error occurs, idk)
-        proc = subprocess.run(
-            [python_bin, "-m", "pip", "install", "librosa"], stdout=PIPE, stderr=PIPE, text=True)
-        print("-"*10, "\n", proc.stdout, "\n", "-"*10)
-        print("BPMmarker: librosa is installed.")
-        try:
-            import librosa
-            print(
-                "BPMmarker: Finally you can use librosa and all features of BPMmarker. Yay!")
-        except ImportError:
-            print(
-                "BPMmarker: librosa was installed but maybe blender needs to restart. Try it!")
-            librosa = None
-
-    except Exception as e:  # when error occurs, print the error message
-        print("BPMmarker: Could not install librosa. Please install librosa manually.")
-        print(e)
-        librosa = None
-
 bl_info = {
     "name": "animation: BPM marker",
     "author": "Aodaruma",
@@ -97,9 +55,102 @@ class AODARUMA_PT_BPMmarker_SequencerPanel(bpy.types.Panel):
                              text="Mark manually")
         self.layout.operator("aodaruma.bpmmarker_automatically",
                              text="Auto BPM detect and Add marker")
+        self.layout.operator("aodaruma.librosa_installer",
+                             text="Install librosa")
 
 # ------------------------------------------------ #
 
+
+class AODARUMA_OT_LibrosaInstaller(bpy.types.Operator):
+    """
+    Install librosa
+    """
+    bl_idname = "aodaruma.librosa_installer"
+    bl_label = "Install librosa"
+    bl_description = "Install librosa"
+    bl_options = {'REGISTER'}
+
+    def draw(self, context):
+        layout = self.layout
+        layout.label(
+            text="Installing librosa will take a while. Please be patient.", icon='ERROR')
+
+    def execute(self, context):
+        try:
+            import librosa
+            self.report({'ERROR'}, "librosa is already installed")
+            return {'CANCELLED'}
+        except ImportError as e:
+            if str(e).startswith("No module named"):
+                if str(e).endswith("librosa"):
+                    try:
+                        import sys
+                        import os
+                        import subprocess
+                        from subprocess import PIPE
+                        from pathlib import Path
+
+                        # specify the path of python binary of blender
+                        python_bin_dir = Path(sys.exec_prefix) / "bin"
+                        os_type = sys.platform
+                        python_bin = None
+                        for p in python_bin_dir.iterdir():
+                            if "python" in p.name:
+                                python_bin = p
+                                break
+                        if python_bin is None:
+                            # raise Exception("Could not find python executable")
+                            self.report(
+                                {'ERROR'}, "Could not find python executable")
+                            return {'ERROR'}
+
+                        # try to install librosa using pip from subprocess (maybe some unexpected error occurs, idk)
+                        proc = subprocess.run(
+                            [python_bin, "-m", "pip", "install", "librosa"], stdout=PIPE, stderr=PIPE, text=True)  # type: ignore
+                        print("-"*10, "\n", proc.stdout, "\n", "-"*10)
+                        print("BPMmarker: librosa is installed.")
+                        try:
+                            import librosa
+                            self.report(
+                                {"INFO"}, "BPMmarker: Finally you can use librosa and all features of BPMmarker. Yay!")
+                        except ImportError as e:
+                            if str(e).startswith("No module named"):
+                                if str(e).endswith("librosa"):
+                                    self.report(
+                                        {"WARNING"}, "BPMmarker: librosa was installed but maybe blender needs to restart. Try it!")
+                                    # self.report(
+                                    #     {'ERROR'}, "BPMmarker: Cannnot install librosa. Maybe something went wrong so report it to the developer.")
+                                else:
+                                    self.report(
+                                        {'ERROR'}, f"BPMmarker: Unknown module ({e.name}) import error occurred. Report it to the developer.")
+                                    return {'ERROR'}
+                            else:
+                                self.report(
+                                    {'ERROR'}, f"BPMmarker: Unknown error occurred. Report it to the developer: {e}")
+                            librosa = None
+                            return {'ERROR'}
+                    except Exception as e:
+                        self.report(
+                            {'ERROR'}, f"BPMmarker: Unknown error occurred. Report it to the developer: {e}")
+                        librosa = None
+                        return {'ERROR'}
+                else:
+                    self.report(
+                        {'ERROR'}, "BPMmarker: Unknown module ({e.name}) import error occurred. Report it to the developer.")
+                    librosa = None
+                    return {'ERROR'}
+            else:
+                self.report(
+                    {'ERROR'}, f"BPMmarker: Unknown error occurred. Report it to the developer: {e}")
+                librosa = None
+                return {'ERROR'}
+        return {'FINISHED'}
+
+    def invoke(self, context, event):
+        return context.window_manager.invoke_props_dialog(self)
+
+
+# ------------------------------------------------ #
 
 class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
     bl_idname = "aodaruma.bpmmarker_manually"
