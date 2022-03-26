@@ -364,6 +364,7 @@ class AODARUMA_OT_BPMmarkerAutomatically(bpy.types.Operator):
 
 
 classes = [
+    AODARUMA_OT_LibrosaInstaller,
     AODARUMA_OT_BPMmarkerManually,
     AODARUMA_OT_BPMmarkerAutomatically,
     AODARUMA_PT_BPMmarker_DopesheetPanel,
