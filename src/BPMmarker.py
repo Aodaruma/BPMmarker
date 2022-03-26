@@ -205,10 +205,10 @@ class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
             counter = now_beat % beat
             if VERSION < (2, 80, 0):
                 tms.new("{m}{c}{m}".format(
-                    c=counter+1, m="|" if counter == 0 else ""), frame+start)
+                    c=counter+1, m="|" if counter == 0 else ""), round(frame+start))
             else:
                 tms.new("{m}{c}{m}".format(
-                    c=counter+1, m="|" if counter == 0 else ""), frame=frame+start)
+                    c=counter+1, m="|" if counter == 0 else ""), frame=round(frame+start))
             frame += fpb
             now_beat += 1
 
