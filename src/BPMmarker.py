@@ -179,11 +179,11 @@ class AODARUMA_OT_BPMmarkerManually(bpy.types.Operator):
     def execute(self, context: bpy.types.Context):
         scene = context.scene
 
-        bpm = self.BPM
-        beat = self.beat
-        start = self.start
-        end = self.end
-        standard = self.standard
+        bpm: float = self.BPM
+        beat: int = self.beat
+        start: int = self.start
+        end: int = self.end
+        standard: bool = self.standard
         fps = scene.render.fps
         tms = scene.timeline_markers
 
