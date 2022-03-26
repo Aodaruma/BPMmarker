@@ -258,10 +258,15 @@ class AODARUMA_OT_BPMmarkerAutomatically(bpy.types.Operator):
         name="clear previous marks", default=True, description="whether to clear previous BPM markers")
 
     def execute(self, context: bpy.types.Context):
-        if librosa is None:
-            self.report(
-                {"ERROR"}, 'librosa is not installed. please install librosa with pip (generally installed when blender installs this addon) and restart blender')
-            return {'CANCELLED'}
+        try:
+            import librosa
+        except ImportError as e:
+            if str(e).startswith("No module named"):
+                if "librosa" in str(e):
+                    self.report(
+                        {"ERROR"}, 'librosa is not installed. please install librosa with pip (generally installed when blender installs this addon) and restart blender')
+                    return {'CANCELLED'}
+            raise e
 
         scene = context.scene
         beat = self.beat
@@ -339,6 +344,13 @@ class AODARUMA_OT_BPMmarkerAutomatically(bpy.types.Operator):
         return{'FINISHED'}
 
     def invoke(self, context, event):
+        try:
+            import librosa
+        except ImportError as e:
+            return_status = context.window_manager.invoke_confirm(
+                AODARUMA_OT_LibrosaInstaller(), event)
+            if return_status != {"FINISHED"}:
+                return return_status
         return context.window_manager.invoke_props_dialog(self)
 
     def draw(self, context):
