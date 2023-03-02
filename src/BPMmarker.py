@@ -87,7 +87,7 @@ class AODARUMA_OT_BPMmaker(bpy.types.Operator):
                     c=counter+1, m="|" if counter == 0 else ""), frame+start)
             else:
                 tms.new("{m}{c}{m}".format(
-                    c=counter+1, m="|" if counter == 0 else ""), frame=frame+start)
+                    c=counter+1, m="|" if counter == 0 else ""), frame=int(frame+start))
             frame += fpb
 
         return{'FINISHED'}
